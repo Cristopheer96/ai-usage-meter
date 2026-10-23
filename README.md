@@ -4,7 +4,7 @@
 
 Your **Claude Code** and **Codex** usage limits in the macOS menu bar.
 
-![Menu bar dropdown](docs/screenshot.png)
+![The Claude item climbs to 91%, a notification warns at 90%, the Claude and Codex menus show each limit with its reset time, and a second notification says when the session resets](docs/demo.gif)
 
 - 5-hour and weekly limits, with time until each one resets.
 - Notifications at 90% and when your session resets.
