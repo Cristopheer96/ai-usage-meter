@@ -1,9 +1,9 @@
 #!/bin/bash
 # Installs the AI Usage Meter menu bar plugins (Claude and Codex) for SwiftBar. Homebrew is optional.
-# Usage: curl -fsSL https://raw.githubusercontent.com/Cristopheer96/claude-usage-swiftbar/main/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/Cristopheer96/ai-usage-meter/main/install.sh | bash
 set -euo pipefail
 
-REPO_RAW="https://raw.githubusercontent.com/Cristopheer96/claude-usage-swiftbar/main"
+REPO_RAW="https://raw.githubusercontent.com/Cristopheer96/ai-usage-meter/main"
 PLUGIN="claude-usage.5m.sh"
 DEFAULT_DIR="$HOME/.swiftbar-plugins"
 BIN_DIR="$HOME/Library/Application Support/AI Usage Meter/bin"

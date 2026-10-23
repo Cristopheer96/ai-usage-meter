@@ -1,6 +1,6 @@
 # AI Usage Meter for Claude Code and Codex (SwiftBar plugin)
 
-[![CI](https://github.com/Cristopheer96/claude-usage-swiftbar/actions/workflows/ci.yml/badge.svg)](https://github.com/Cristopheer96/claude-usage-swiftbar/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/Cristopheer96/claude-usage-swiftbar)](https://github.com/Cristopheer96/claude-usage-swiftbar/releases/latest) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![CI](https://github.com/Cristopheer96/ai-usage-meter/actions/workflows/ci.yml/badge.svg)](https://github.com/Cristopheer96/ai-usage-meter/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/Cristopheer96/ai-usage-meter)](https://github.com/Cristopheer96/ai-usage-meter/releases/latest) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 See your Claude and Codex plan limits in the macOS menu bar: the 5-hour session limit, the weekly limit and any per-model weekly limit, with time until each one resets.
 
@@ -18,7 +18,7 @@ Claude and Codex get one menu bar item each, with their own icon and menu: `[Cla
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Cristopheer96/claude-usage-swiftbar/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Cristopheer96/ai-usage-meter/main/install.sh | bash
 ```
 
 The installer:
@@ -33,8 +33,8 @@ The first time it runs, macOS may ask whether SwiftBar can read the `Claude Code
 Prefer to read it first? Clone the repo and run it locally:
 
 ```bash
-git clone https://github.com/Cristopheer96/claude-usage-swiftbar.git
-cd claude-usage-swiftbar
+git clone https://github.com/Cristopheer96/ai-usage-meter.git
+cd ai-usage-meter
 ./install.sh
 ```
 
@@ -49,7 +49,7 @@ cd claude-usage-swiftbar
 ## Uninstall
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Cristopheer96/claude-usage-swiftbar/main/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Cristopheer96/ai-usage-meter/main/uninstall.sh | bash
 ```
 
 This removes the plugin, the notifier app and the cache, and leaves SwiftBar installed. Remove it with `brew uninstall --cask swiftbar`.
@@ -119,7 +119,7 @@ Muestra en la barra de menú de macOS tu uso de Claude y de Codex: el límite de
 **Instalar:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Cristopheer96/claude-usage-swiftbar/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Cristopheer96/ai-usage-meter/main/install.sh | bash
 ```
 
 Necesitas Claude Code con la sesión iniciada (`claude`), Codex, o los dos. Cada uno aparece solo si está instalado. El idioma sigue al de macOS. Te llega una notificación cuando tu sesión llega al 90 % y otra cuando se reinicia. Todo se configura en SwiftBar → el plugin → **Configure Plugin**:

@@ -1,10 +1,10 @@
 #!/bin/bash
 # <xbar.title>AI Usage Meter (Claude + Codex)</xbar.title>
-# <xbar.version>v1.5.0</xbar.version>
+# <xbar.version>v1.5.1</xbar.version>
 # <xbar.author>Cristopher Huaroc</xbar.author>
 # <xbar.desc>Shows your Claude and Codex plan usage (5-hour and weekly limits) in the menu bar.</xbar.desc>
 # <xbar.dependencies>bash,jq,curl,Claude Code or Codex</xbar.dependencies>
-# <xbar.abouturl>https://github.com/Cristopheer96/claude-usage-swiftbar</xbar.abouturl>
+# <xbar.abouturl>https://github.com/Cristopheer96/ai-usage-meter</xbar.abouturl>
 # <swiftbar.hideRunInTerminal>true</swiftbar.hideRunInTerminal>
 # <swiftbar.environment>[USAGE_PROVIDERS=auto, CLAUDE_USAGE_LANG=auto, CLAUDE_USAGE_DISPLAY=both, CLAUDE_USAGE_NOTIFY_AT=90]</swiftbar.environment>
 
@@ -12,8 +12,8 @@
 # Codex writes to its local session logs. Either may change without notice.
 # The installer puts jq in Application Support when neither macOS nor Homebrew provides it.
 export PATH="$HOME/Library/Application Support/AI Usage Meter/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
-VERSION="1.5.0"
-REPO="Cristopheer96/claude-usage-swiftbar"
+VERSION="1.5.1"
+REPO="Cristopheer96/ai-usage-meter"
 CLAUDE_URL="https://claude.ai/settings/usage"
 CODEX_URL="https://chatgpt.com/codex/settings/usage"
 CODEX_DIR="${CODEX_HOME:-$HOME/.codex}"
@@ -226,7 +226,7 @@ LATEST=""
 if [ -z "$CLAUDE_USAGE_FIXTURE$CODEX_USAGE_FIXTURE" ]; then
   LATEST_FILE="$CACHE_DIR/latest-version"
   if [ ! -f "$LATEST_FILE" ] || [ -n "$(find "$LATEST_FILE" -mtime +0 2>/dev/null)" ]; then
-    TAG=$(curl -s -m 5 "https://api.github.com/repos/$REPO/releases/latest" | jq -r '.tag_name // empty' 2>/dev/null)
+    TAG=$(curl -sL -m 5 "https://api.github.com/repos/$REPO/releases/latest" | jq -r '.tag_name // empty' 2>/dev/null)
     if [ -n "$TAG" ]; then echo "${TAG#v}" > "$LATEST_FILE"; else touch "$LATEST_FILE"; fi
   fi
   LATEST=$(cat "$LATEST_FILE" 2>/dev/null)

@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.5.1 - 2026-10-23
+
+- The repo is now `Cristopheer96/ai-usage-meter` (it covers Claude and Codex). Old links redirect.
+- The update check follows redirects.
+
 ## v1.5.0 - 2026-10-23
 
 - Codex support: 5-hour and weekly limits read from Codex's local session logs (no network calls), shown next to Claude as `◎ 24% · 24%`.
