@@ -2,7 +2,6 @@ name: CI
 
 on:
   push:
-    branches: [main]
   pull_request:
 
 jobs:
@@ -21,3 +20,39 @@ jobs:
           notifier/build.sh notifier "$RUNNER_TEMP/AI Usage Meter.app"
           test -f "$RUNNER_TEMP/AI Usage Meter.app/Contents/Resources/applet.icns"
           codesign --verify "$RUNNER_TEMP/AI Usage Meter.app"
+
+  # Installs on a clean macOS user: no Homebrew, no jq, no SwiftBar, empty HOME.
+  fresh-install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install like a new Mac
+        env:
+          AI_USAGE_NO_BREW: "1"
+          AI_USAGE_NO_LAUNCH: "1"
+        run: |
+          export HOME="$RUNNER_TEMP/home"; mkdir -p "$HOME"
+          defaults delete com.ameba.SwiftBar 2>/dev/null || true
+          PATH=/usr/bin:/bin:/usr/sbin:/sbin ./install.sh
+      - name: Check what was installed
+        run: |
+          export HOME="$RUNNER_TEMP/home"
+          uname -m; sw_vers -productVersion
+          ls -d /Applications/SwiftBar.app || ls -d "$HOME/Applications/SwiftBar.app"
+          codesign --verify --deep --strict /Applications/SwiftBar.app 2>/dev/null || codesign --verify --deep --strict "$HOME/Applications/SwiftBar.app"
+          PLUGIN_DIR=$(defaults read com.ameba.SwiftBar PluginDirectory)
+          test -x "$PLUGIN_DIR/claude-usage.5m.sh"
+          test -d "$HOME/Applications/AI Usage Meter.app"
+          if [ -x "$HOME/Library/Application Support/AI Usage Meter/bin/jq" ]; then "$HOME/Library/Application Support/AI Usage Meter/bin/jq" --version; else /usr/bin/jq --version; fi
+      - name: Plugin renders with only the installed tools
+        run: |
+          export HOME="$RUNNER_TEMP/home"
+          PLUGIN_DIR=$(defaults read com.ameba.SwiftBar PluginDirectory)
+          out=$(PATH=/usr/bin:/bin CLAUDE_USAGE_LANG=en CLAUDE_USAGE_FIXTURE="$PWD/fixtures/team-with-model-limit.json" "$PLUGIN_DIR/claude-usage.5m.sh")
+          echo "$out"
+          grep -qF "6% · 20% | templateImage=" <<<"$out"
+          grep -qF "Weekly Fable  27%" <<<"$out"

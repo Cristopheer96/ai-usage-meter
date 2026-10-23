@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="26" viewBox="-0.5 -0.5 17 11" shape-rendering="crispEdges">
+  <!-- Claude Code pixel mascot, redrawn on a 16x10 grid. Trademark of Anthropic. -->
+  <g fill="#000">
+    <!-- body with the eyes cut out -->
+    <path fill-rule="evenodd" d="M2 0H14V8H2Z M4 2H5V4H4Z M11 2H12V4H11Z"/>
+    <!-- arms -->
+    <rect x="0" y="4" width="2" height="2"/>
+    <rect x="14" y="4" width="2" height="2"/>
+    <!-- legs -->
+    <rect x="3" y="8" width="1" height="2"/>
+    <rect x="5" y="8" width="1" height="2"/>
+    <rect x="10" y="8" width="1" height="2"/>
+    <rect x="12" y="8" width="1" height="2"/>
+  </g>
+</svg>

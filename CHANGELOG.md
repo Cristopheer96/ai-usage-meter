@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.5.0 - 2026-10-23
+
+- Codex support: 5-hour and weekly limits read from Codex's local session logs (no network calls), shown next to Claude as `◎ 24% · 24%`.
+- The 90% warning and the reset notification work for Codex too.
+- Claude and Codex are two separate menu bar items, each with its own icon (the Claude Code pixel mascot for Claude, the OpenAI logo for Codex). The installer adds the ones you use.
+- Homebrew is no longer required: without it, the installer downloads the notarized SwiftBar release and the official jq binary, both checked against pinned SHA-256 hashes.
+- CI installs on clean macOS 14 (Apple silicon) and macOS 15 (Intel) machines.
+- `USAGE_PROVIDERS` picks what to show: `auto` (default, by file name), `claude`, `codex` or `both` (one combined item).
+
 ## v1.4.1 - 2026-10-23
 
 - Wait at least 5 minutes after a 429, even when the API sends `retry-after: 0`.
