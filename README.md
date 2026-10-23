@@ -8,7 +8,7 @@ See your Claude plan limits in the macOS menu bar: the 5-hour session limit, the
 
 `✳ 6% · 20%` = session usage · weekly usage. The title turns orange at 70% and red at 90%.
 
-- **Two notifications:** one when your 5-hour session reaches 90% ("Claude: 92% of your session used. Resets at 17:14 (in 1 h 20 min)") and another the moment it resets ("Claude is available again").
+- <img src="docs/icon.png" width="20" align="top"> **Two notifications:** one when your 5-hour session reaches 90% ("Claude: 92% of your session used. Resets at 17:14 (in 1 h 20 min)") and another the moment it resets ("Claude is available again").
 - **Rate-limit safe:** if Anthropic answers 429, it keeps showing the last data and waits as told.
 - **Updates itself on request:** checks GitHub once a day and adds an "Install update" item when there is a new release.
 - English and Spanish, following your macOS language.
@@ -26,6 +26,7 @@ The installer:
 1. Installs [SwiftBar](https://swiftbar.app) with Homebrew if you don't have it.
 2. Installs `jq` if it's missing (macOS 15+ already ships it).
 3. Copies the plugin into your SwiftBar plugin folder (`~/.swiftbar-plugins` if none is set) and starts SwiftBar.
+4. Builds a tiny notifier app, `~/Applications/AI Usage Meter.app`, so notifications show their own icon. It is compiled on your Mac from [`notifier/`](notifier) with `osacompile`; no binaries are downloaded.
 
 The first time it runs, macOS may ask whether SwiftBar can read the `Claude Code-credentials` Keychain item. Choose **Always Allow**.
 
@@ -49,7 +50,7 @@ cd claude-usage-swiftbar
 curl -fsSL https://raw.githubusercontent.com/Cristopheer96/claude-usage-swiftbar/main/uninstall.sh | bash
 ```
 
-This removes the plugin and leaves SwiftBar installed. Remove it with `brew uninstall --cask swiftbar`.
+This removes the plugin, the notifier app and the cache, and leaves SwiftBar installed. Remove it with `brew uninstall --cask swiftbar`.
 
 ## Settings
 
@@ -77,7 +78,7 @@ Change these in SwiftBar: click the plugin → **SwiftBar** → **Configure Plug
 | `⚠ Data from 15:40 (429)` in the menu | Anthropic rate-limited the request. The plugin shows the last data and retries by itself. |
 | `✳ ⚠` + another code | The endpoint failed or changed. Open an issue. |
 | `↑` next to the numbers | A new version is out. Open the menu → **Install update**. |
-| No notifications | They are sent through `osascript`, so allow **Script Editor** in System Settings → Notifications, and check Focus / Do Not Disturb. |
+| No notifications | Allow **AI Usage Meter** in System Settings → Notifications, and check Focus / Do Not Disturb. |
 | Nothing in the menu bar | The bar is full and macOS is hiding icons. Quit some apps or hold ⌘ and drag icons to reorder. |
 
 ## Development
@@ -86,7 +87,7 @@ Run the tests (they also run on every push and PR):
 
 ```bash
 tests/run.sh
-shellcheck claude-usage.5m.sh install.sh uninstall.sh tests/run.sh
+shellcheck claude-usage.5m.sh install.sh uninstall.sh tests/run.sh notifier/build.sh
 ```
 
 Render a saved response instead of calling the API:

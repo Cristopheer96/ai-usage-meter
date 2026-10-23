@@ -13,6 +13,11 @@ jobs:
       - name: Install shellcheck
         run: brew install shellcheck
       - name: Lint
-        run: shellcheck claude-usage.5m.sh install.sh uninstall.sh tests/run.sh
+        run: shellcheck claude-usage.5m.sh install.sh uninstall.sh tests/run.sh notifier/build.sh
       - name: Render fixtures
         run: tests/run.sh
+      - name: Build notifier app
+        run: |
+          notifier/build.sh notifier "$RUNNER_TEMP/AI Usage Meter.app"
+          test -f "$RUNNER_TEMP/AI Usage Meter.app/Contents/Resources/applet.icns"
+          codesign --verify "$RUNNER_TEMP/AI Usage Meter.app"

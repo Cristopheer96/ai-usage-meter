@@ -51,6 +51,21 @@ fi
 chmod +x "$PLUGIN_DIR/$PLUGIN"
 info "Plugin installed in $PLUGIN_DIR"
 
+# Small notifier app so notifications show their own icon instead of Script Editor's
+NOTIFIER_SRC="$SCRIPT_DIR/notifier"
+if [ -z "$SCRIPT_DIR" ] || [ ! -f "$NOTIFIER_SRC/build.sh" ]; then
+  NOTIFIER_SRC=$(mktemp -d)
+  for f in build.sh notify.applescript icon.icns; do
+    curl -fsSL "$REPO_RAW/notifier/$f" -o "$NOTIFIER_SRC/$f"
+  done
+fi
+mkdir -p "$HOME/Applications"
+if bash "$NOTIFIER_SRC/build.sh" "$NOTIFIER_SRC" "$HOME/Applications/AI Usage Meter.app"; then
+  info "Notifier app installed in ~/Applications"
+else
+  warn "Could not build the notifier app; notifications will use Script Editor's icon."
+fi
+
 # Claude Code login is where the token comes from
 if ! security find-generic-password -s "Claude Code-credentials" >/dev/null 2>&1; then
   warn "No Claude Code login found. Install Claude Code and run 'claude' to sign in; the plugin will pick it up."
@@ -62,4 +77,5 @@ else
   open -a SwiftBar
 fi
 info "Done. Look for ✳ in your menu bar."
+warn "macOS may ask to allow notifications from \"AI Usage Meter\": choose Allow."
 warn "The first time, macOS may ask to allow SwiftBar to read the \"Claude Code-credentials\" Keychain item: choose Always Allow."

@@ -1,6 +1,6 @@
 #!/bin/bash
 # <xbar.title>Claude Usage</xbar.title>
-# <xbar.version>v1.3.0</xbar.version>
+# <xbar.version>v1.4.0</xbar.version>
 # <xbar.author>Cristopher Huaroc</xbar.author>
 # <xbar.desc>Shows your Claude plan usage (5-hour session and weekly limits) in the menu bar, using your Claude Code login.</xbar.desc>
 # <xbar.dependencies>bash,jq,curl,Claude Code</xbar.dependencies>
@@ -10,7 +10,7 @@
 
 # Unofficial: reads the same endpoint Claude Code's /usage command uses. It may change without notice.
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
-VERSION="1.3.0"
+VERSION="1.4.0"
 REPO="Cristopheer96/claude-usage-swiftbar"
 USAGE_URL="https://claude.ai/settings/usage"
 CACHE_DIR="${CLAUDE_USAGE_CACHE_DIR:-$HOME/Library/Caches/claude-usage-swiftbar}"
@@ -46,10 +46,16 @@ case "$LANG_CODE" in
     T_UPDATE="Update available"; T_UPDATE_INSTALL="Install update"; T_RELEASE_NOTES="What's new" ;;
 esac
 
-# In fixture mode notifications are printed to stderr instead of shown.
+# Notifications go through the bundled notifier app (own icon); osascript is the fallback.
+# In fixture mode they are printed to stderr instead.
+NOTIFIER_APP="$HOME/Applications/AI Usage Meter.app"
 notify() {
   if [ -n "$CLAUDE_USAGE_FIXTURE" ]; then
     echo "NOTIFY: $1 - $2" >&2
+  elif [ -d "$NOTIFIER_APP" ]; then
+    mkdir -p "$CACHE_DIR/notifications"
+    printf '%s\n%s\n' "$1" "$2" > "$CACHE_DIR/notifications/$(date +%s)-$$-$RANDOM.txt"
+    open -n -g "$NOTIFIER_APP"
   else
     osascript -e "display notification \"$2\" with title \"$1\" sound name \"Glass\"" >/dev/null 2>&1
   fi

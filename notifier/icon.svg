@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2A3142"/>
+      <stop offset="1" stop-color="#11141C"/>
+    </linearGradient>
+    <linearGradient id="arc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#34D399"/>
+      <stop offset="0.55" stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#F97362"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  <rect x="101" y="101" width="822" height="822" rx="184" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="2"/>
+  <!-- ring: track + 75% progress starting at the bottom-left -->
+  <circle cx="512" cy="512" r="270" fill="none" stroke="#FFFFFF" stroke-opacity="0.09" stroke-width="64"/>
+  <path d="M 321 703 A 270 270 0 1 1 703 703" fill="none" stroke="url(#arc)" stroke-width="64" stroke-linecap="round"/>
+  <circle cx="512" cy="512" r="190" fill="url(#glow)"/>
+  <!-- four-point sparkle -->
+  <path d="M512 382 C 524 470, 554 500, 642 512 C 554 524, 524 554, 512 642 C 500 554, 470 524, 382 512 C 470 500, 500 470, 512 382 Z" fill="#FFFFFF"/>
+  <path d="M640 384 C 644 410, 652 418, 678 422 C 652 426, 644 434, 640 460 C 636 434, 628 426, 602 422 C 628 418, 636 410, 640 384 Z" fill="#FFFFFF" fill-opacity="0.75"/>
+</svg>

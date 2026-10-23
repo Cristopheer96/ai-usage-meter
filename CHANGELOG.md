@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.4.0 - 2026-10-23
+
+- Notifications come from a small "AI Usage Meter" app with its own icon, instead of Script Editor. The installer builds it locally with `osacompile`; `osascript` remains the fallback.
+
 ## v1.3.0 - 2026-10-23
 
 - Notification when your session reaches `CLAUDE_USAGE_NOTIFY_AT` (90% by default), once per 5-hour window, with the reset time.
