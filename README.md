@@ -1,10 +1,17 @@
 # Usage meter for Claude Code (SwiftBar plugin)
 
+[![CI](https://github.com/Cristopheer96/claude-usage-swiftbar/actions/workflows/ci.yml/badge.svg)](https://github.com/Cristopheer96/claude-usage-swiftbar/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/Cristopheer96/claude-usage-swiftbar)](https://github.com/Cristopheer96/claude-usage-swiftbar/releases/latest) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 See your Claude plan limits in the macOS menu bar: the 5-hour session limit, the weekly limit and any per-model weekly limit, with time until each one resets.
 
 ![Menu bar dropdown](docs/screenshot.png)
 
 `✳ 6% · 20%` = session usage · weekly usage. The title turns orange at 70% and red at 90%.
+
+- **Session reset alert:** if you went above 90% of your 5-hour limit, you get a macOS notification the moment it resets.
+- **Rate-limit safe:** if Anthropic answers 429, it keeps showing the last data and waits as told.
+- **Updates itself on request:** checks GitHub once a day and adds an "Install update" item when there is a new release.
+- English and Spanish, following your macOS language.
 
 > Not affiliated with or endorsed by Anthropic. It reads the same unofficial endpoint the Claude Code `/usage` command uses, so it may break if Anthropic changes it.
 
@@ -46,9 +53,13 @@ This removes the plugin and leaves SwiftBar installed. Remove it with `brew unin
 
 ## Settings
 
+Change these in SwiftBar: click the plugin → **SwiftBar** → **Configure Plugin**.
+
 | What | How |
 | --- | --- |
-| Language | English or Spanish, following your macOS language. Force one in SwiftBar → plugin → **Configure Plugin**: `CLAUDE_USAGE_LANG=en` or `es`. |
+| Language | English or Spanish, following your macOS language. `CLAUDE_USAGE_LANG=en` or `es` to force one. |
+| Menu bar text | `CLAUDE_USAGE_DISPLAY`: `both` (`✳ 6% · 20%`, default), `session` (`✳ 6%`), `max` (highest limit, `✳ 27%`) or `icon` (`✳ ◔`). |
+| Reset alert | `CLAUDE_USAGE_NOTIFY_AT`: session % that arms the alert (default `90`). `0` turns it off. |
 | Refresh interval | The `5m` in the file name (every 5 minutes). Going much lower can hit the endpoint's rate limit; the plugin then shows the last data it got. |
 
 ## Privacy
@@ -65,9 +76,18 @@ This removes the plugin and leaves SwiftBar installed. Remove it with `brew unin
 | `✳ ⚠` + error 401 | The token expired. Open Claude Code once and it refreshes it. |
 | `⚠ Data from 15:40 (429)` in the menu | Anthropic rate-limited the request. The plugin shows the last data and retries by itself. |
 | `✳ ⚠` + another code | The endpoint failed or changed. Open an issue. |
+| `↑` next to the numbers | A new version is out. Open the menu → **Install update**. |
+| No reset notification | Allow notifications for SwiftBar in System Settings → Notifications. |
 | Nothing in the menu bar | The bar is full and macOS is hiding icons. Quit some apps or hold ⌘ and drag icons to reorder. |
 
 ## Development
+
+Run the tests (they also run on every push and PR):
+
+```bash
+tests/run.sh
+shellcheck claude-usage.5m.sh install.sh uninstall.sh tests/run.sh
+```
 
 Render a saved response instead of calling the API:
 
@@ -76,7 +96,7 @@ CLAUDE_USAGE_FIXTURE=fixtures/near-limit.json ./claude-usage.5m.sh
 CLAUDE_USAGE_LANG=es CLAUDE_USAGE_FIXTURE=fixtures/team-with-model-limit.json ./claude-usage.5m.sh
 ```
 
-`fixtures/` has a normal response, one near the limits, an older response without the `limits` array and an empty one. PRs with fixtures from other plans are welcome.
+`fixtures/` has a normal response, one near the limits, an older response without the `limits` array and an empty one. PRs with fixtures from other plans are welcome. See [CHANGELOG.md](CHANGELOG.md) for releases.
 
 ## License
 
@@ -94,4 +114,10 @@ Muestra en la barra de menú de macOS tu uso del plan de Claude: el límite de s
 curl -fsSL https://raw.githubusercontent.com/Cristopheer96/claude-usage-swiftbar/main/install.sh | bash
 ```
 
-Necesitas tener Claude Code instalado y con la sesión iniciada (`claude`). El idioma sigue al de macOS. Para forzar español, entra a SwiftBar → el plugin → **Configure Plugin** y pon `CLAUDE_USAGE_LANG=es`. No es un proyecto oficial de Anthropic.
+Necesitas tener Claude Code instalado y con la sesión iniciada (`claude`). El idioma sigue al de macOS. Si pasaste del 90 % de tu límite de sesión, te llega una notificación apenas se reinicia. Todo se configura en SwiftBar → el plugin → **Configure Plugin**:
+
+- `CLAUDE_USAGE_LANG=es` para forzar español.
+- `CLAUDE_USAGE_DISPLAY=both|session|max|icon` para elegir qué se ve en la barra.
+- `CLAUDE_USAGE_NOTIFY_AT=90` para el aviso de reinicio (`0` lo apaga).
+
+No es un proyecto oficial de Anthropic.
