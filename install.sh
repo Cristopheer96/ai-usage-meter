@@ -4,7 +4,7 @@
 set -euo pipefail
 
 REPO_RAW="https://raw.githubusercontent.com/Cristopheer96/claude-usage-swiftbar/main"
-PLUGIN="claude-usage.2m.sh"
+PLUGIN="claude-usage.5m.sh"
 DEFAULT_DIR="$HOME/.swiftbar-plugins"
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
@@ -38,6 +38,7 @@ if [ -z "$PLUGIN_DIR" ]; then
   defaults write com.ameba.SwiftBar PluginDirectory "$PLUGIN_DIR"
 fi
 mkdir -p "$PLUGIN_DIR"
+rm -f "$PLUGIN_DIR"/claude-usage.*.sh  # drop older versions with another interval
 
 # Copy from a local clone if present, otherwise download
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || true)

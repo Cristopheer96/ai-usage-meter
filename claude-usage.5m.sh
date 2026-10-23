@@ -23,13 +23,15 @@ case "$LANG_CODE" in
     T_RESETS="reinicia en"; T_DAY="d"; T_EXTRA="Créditos extra"; T_EXTRA_OFF="Créditos extra: desactivados"
     T_OPEN="Abrir uso en claude.ai"; T_REFRESH="Actualizar"; T_NO_CREDS="No hay sesión de Claude Code en el Keychain"
     T_LOGIN="Instala Claude Code e inicia sesión con: claude"; T_ERROR="Error al consultar el uso"
-    T_EXPIRED="Token vencido: abre Claude Code para renovarlo"; T_NO_DATA="Sin límites que mostrar" ;;
+    T_EXPIRED="Token vencido: abre Claude Code para renovarlo"; T_NO_DATA="Sin límites que mostrar"
+    T_STALE="Datos de las"; T_RATE_LIMITED="Demasiadas consultas: se reintentará en unos minutos" ;;
   *)
     T_SESSION="Session (5 h)"; T_WEEKLY="Weekly (all models)"; T_WEEKLY_MODEL="Weekly"
     T_RESETS="resets in"; T_DAY="d"; T_EXTRA="Extra usage"; T_EXTRA_OFF="Extra usage: off"
     T_OPEN="Open usage on claude.ai"; T_REFRESH="Refresh"; T_NO_CREDS="No Claude Code login found in Keychain"
     T_LOGIN="Install Claude Code and sign in with: claude"; T_ERROR="Could not fetch usage"
-    T_EXPIRED="Token expired: open Claude Code to refresh it"; T_NO_DATA="No limits to show" ;;
+    T_EXPIRED="Token expired: open Claude Code to refresh it"; T_NO_DATA="No limits to show"
+    T_STALE="Data from"; T_RATE_LIMITED="Too many requests: will retry in a few minutes" ;;
 esac
 
 # CLAUDE_USAGE_FIXTURE=path/to.json renders a saved response instead of calling the API (for testing).
@@ -40,20 +42,39 @@ else
   if [ -z "$TOKEN" ]; then
     echo "✳ ? | color=gray"; echo "---"; echo "$T_NO_CREDS"; echo "$T_LOGIN"; exit 0
   fi
-  RESPONSE=$(curl -s -m 10 -w '\n%{http_code}' https://api.anthropic.com/api/oauth/usage \
-    -H "Authorization: Bearer $TOKEN" -H "anthropic-beta: oauth-2025-04-20")
-  CODE=$(tail -n1 <<<"$RESPONSE"); BODY=$(sed '$d' <<<"$RESPONSE")
+  CACHE_DIR="$HOME/Library/Caches/claude-usage-swiftbar"; CACHE="$CACHE_DIR/last.json"; COOLDOWN="$CACHE_DIR/retry-until"
+  mkdir -p "$CACHE_DIR"
+  # The endpoint rate-limits (429 + retry-after); skip calls during the cooldown.
+  if [ -f "$COOLDOWN" ] && [ "$(date +%s)" -lt "$(cat "$COOLDOWN")" ]; then
+    CODE="429"
+  else
+    HEADERS=$(mktemp)
+    RESPONSE=$(curl -s -m 10 -D "$HEADERS" -w '\n%{http_code}' https://api.anthropic.com/api/oauth/usage \
+      -H "Authorization: Bearer $TOKEN" -H "anthropic-beta: oauth-2025-04-20")
+    CODE=$(tail -n1 <<<"$RESPONSE"); BODY=$(sed '$d' <<<"$RESPONSE")
+    RETRY=$(awk 'tolower($1) == "retry-after:" { print $2 + 0 }' "$HEADERS"); rm -f "$HEADERS"
+    if [ "$CODE" = "200" ]; then
+      printf '%s' "$BODY" > "$CACHE"; rm -f "$COOLDOWN"
+    elif [ "$CODE" = "429" ]; then
+      echo $(( $(date +%s) + ${RETRY:-300} )) > "$COOLDOWN"
+    fi
+  fi
   if [ "$CODE" != "200" ]; then
-    echo "✳ ⚠ | color=orange"; echo "---"; echo "$T_ERROR ($CODE)"
-    [ "$CODE" = "401" ] && echo "$T_EXPIRED"
-    echo "$T_REFRESH | refresh=true"; exit 0
+    if [ -s "$CACHE" ] && [ "$CODE" != "401" ]; then
+      BODY=$(cat "$CACHE"); NOTE="$T_STALE $(stat -f %Sm -t %H:%M "$CACHE") ($CODE)"
+    else
+      echo "✳ ⚠ | color=orange"; echo "---"; echo "$T_ERROR ($CODE)"
+      [ "$CODE" = "401" ] && echo "$T_EXPIRED"
+      [ "$CODE" = "429" ] && echo "$T_RATE_LIMITED"
+      echo "$T_REFRESH | refresh=true"; exit 0
+    fi
   fi
 fi
 
 jq -r \
   --arg session "$T_SESSION" --arg weekly "$T_WEEKLY" --arg weeklyModel "$T_WEEKLY_MODEL" \
   --arg resets "$T_RESETS" --arg day "$T_DAY" --arg extra "$T_EXTRA" --arg extraOff "$T_EXTRA_OFF" \
-  --arg open "$T_OPEN" --arg refresh "$T_REFRESH" --arg noData "$T_NO_DATA" --arg url "$USAGE_URL" '
+  --arg open "$T_OPEN" --arg refresh "$T_REFRESH" --arg noData "$T_NO_DATA" --arg url "$USAGE_URL" --arg note "${NOTE:-}" '
   def left: (.resets_at // "" | sub("\\.[0-9]+"; "") | sub("\\+00:00$"; "Z") | try fromdateiso8601 catch null)
     | if . == null then "" else . - now
       | if . < 0 then ""
@@ -81,6 +102,7 @@ jq -r \
      elif $limits == [] then "✳ –"
      else "✳ \($top)%" end) + (if color($top) then " | color=\(color($top))" else "" end),
     "---",
+    (if $note != "" then "⚠ \($note) | color=gray", "---" else empty end),
     (if $limits == [] then $noData else empty end),
     ($limits[] | "\(title)  \(.percent)% | font=Menlo size=12" + opts(.percent),
                  "\(bar(.percent))\(left) | font=Menlo size=11 href=\($url)"),
