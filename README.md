@@ -8,7 +8,7 @@ See your Claude plan limits in the macOS menu bar: the 5-hour session limit, the
 
 `✳ 6% · 20%` = session usage · weekly usage. The title turns orange at 70% and red at 90%.
 
-- **Session reset alert:** if you went above 90% of your 5-hour limit, you get a macOS notification the moment it resets.
+- **Two notifications:** one when your 5-hour session reaches 90% ("Claude: 92% of your session used. Resets at 17:14 (in 1 h 20 min)") and another the moment it resets ("Claude is available again").
 - **Rate-limit safe:** if Anthropic answers 429, it keeps showing the last data and waits as told.
 - **Updates itself on request:** checks GitHub once a day and adds an "Install update" item when there is a new release.
 - English and Spanish, following your macOS language.
@@ -59,7 +59,7 @@ Change these in SwiftBar: click the plugin → **SwiftBar** → **Configure Plug
 | --- | --- |
 | Language | English or Spanish, following your macOS language. `CLAUDE_USAGE_LANG=en` or `es` to force one. |
 | Menu bar text | `CLAUDE_USAGE_DISPLAY`: `both` (`✳ 6% · 20%`, default), `session` (`✳ 6%`), `max` (highest limit, `✳ 27%`) or `icon` (`✳ ◔`). |
-| Reset alert | `CLAUDE_USAGE_NOTIFY_AT`: session % that arms the alert (default `90`). `0` turns it off. |
+| Notifications | `CLAUDE_USAGE_NOTIFY_AT`: session % that triggers the warning and the reset alert (default `90`). `0` turns both off. |
 | Refresh interval | The `5m` in the file name (every 5 minutes). Going much lower can hit the endpoint's rate limit; the plugin then shows the last data it got. |
 
 ## Privacy
@@ -77,7 +77,7 @@ Change these in SwiftBar: click the plugin → **SwiftBar** → **Configure Plug
 | `⚠ Data from 15:40 (429)` in the menu | Anthropic rate-limited the request. The plugin shows the last data and retries by itself. |
 | `✳ ⚠` + another code | The endpoint failed or changed. Open an issue. |
 | `↑` next to the numbers | A new version is out. Open the menu → **Install update**. |
-| No reset notification | Allow notifications for SwiftBar in System Settings → Notifications. |
+| No notifications | They are sent through `osascript`, so allow **Script Editor** in System Settings → Notifications, and check Focus / Do Not Disturb. |
 | Nothing in the menu bar | The bar is full and macOS is hiding icons. Quit some apps or hold ⌘ and drag icons to reorder. |
 
 ## Development
@@ -114,10 +114,10 @@ Muestra en la barra de menú de macOS tu uso del plan de Claude: el límite de s
 curl -fsSL https://raw.githubusercontent.com/Cristopheer96/claude-usage-swiftbar/main/install.sh | bash
 ```
 
-Necesitas tener Claude Code instalado y con la sesión iniciada (`claude`). El idioma sigue al de macOS. Si pasaste del 90 % de tu límite de sesión, te llega una notificación apenas se reinicia. Todo se configura en SwiftBar → el plugin → **Configure Plugin**:
+Necesitas tener Claude Code instalado y con la sesión iniciada (`claude`). El idioma sigue al de macOS. Te llega una notificación cuando tu sesión llega al 90 % y otra cuando se reinicia. Todo se configura en SwiftBar → el plugin → **Configure Plugin**:
 
 - `CLAUDE_USAGE_LANG=es` para forzar español.
 - `CLAUDE_USAGE_DISPLAY=both|session|max|icon` para elegir qué se ve en la barra.
-- `CLAUDE_USAGE_NOTIFY_AT=90` para el aviso de reinicio (`0` lo apaga).
+- `CLAUDE_USAGE_NOTIFY_AT=90` para el porcentaje de los avisos (`0` los apaga).
 
 No es un proyecto oficial de Anthropic.

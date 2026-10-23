@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.0 - 2026-10-23
+
+- Notification when your session reaches `CLAUDE_USAGE_NOTIFY_AT` (90% by default), once per 5-hour window, with the reset time.
+
 ## v1.2.0 - 2026-10-23
 
 - Notification when your 5-hour session resets, if you went above 90% (`CLAUDE_USAGE_NOTIFY_AT`).

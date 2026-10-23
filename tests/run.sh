@@ -69,7 +69,15 @@ check_absent "no update for older release" "Update available" "$out"
 # Reset notification: armed at >= 90%, fires once after the reset time.
 fresh; out=$(render "$(session_at 95 3600)")
 check "notification armed" "You'll be notified when the session resets" "$out"
+check "warning sent when crossing the threshold" "NOTIFY: Claude: 95% of your session used - Resets at" "$(cat "$TMP/stderr")"
+render "$(session_at 97 3590)" >/dev/null
+check_absent "warning sent once per window" "NOTIFY" "$(cat "$TMP/stderr")"
+render "$(session_at 92 9000)" >/dev/null
+check "warning again in a new window" "NOTIFY: Claude: 92% of your session used" "$(cat "$TMP/stderr")"
+fresh; render "$(session_at 95 3600)" CLAUDE_USAGE_LANG=es >/dev/null
+check "spanish warning" "NOTIFY: Claude: llevas el 95 % de tu sesión - Se reinicia a las" "$(cat "$TMP/stderr")"
 fresh; out=$(render "$(session_at 50 3600)")
+check_absent "no warning below threshold" "NOTIFY" "$(cat "$TMP/stderr")"
 check_absent "not armed below threshold" "notified" "$out"
 fresh; out=$(render "$(session_at 95 3600)" CLAUDE_USAGE_NOTIFY_AT=0)
 check_absent "disabled with NOTIFY_AT=0" "notified" "$out"

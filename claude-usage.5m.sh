@@ -1,6 +1,6 @@
 #!/bin/bash
 # <xbar.title>Claude Usage</xbar.title>
-# <xbar.version>v1.2.0</xbar.version>
+# <xbar.version>v1.3.0</xbar.version>
 # <xbar.author>Cristopher Huaroc</xbar.author>
 # <xbar.desc>Shows your Claude plan usage (5-hour session and weekly limits) in the menu bar, using your Claude Code login.</xbar.desc>
 # <xbar.dependencies>bash,jq,curl,Claude Code</xbar.dependencies>
@@ -10,7 +10,7 @@
 
 # Unofficial: reads the same endpoint Claude Code's /usage command uses. It may change without notice.
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
-VERSION="1.2.0"
+VERSION="1.3.0"
 REPO="Cristopheer96/claude-usage-swiftbar"
 USAGE_URL="https://claude.ai/settings/usage"
 CACHE_DIR="${CLAUDE_USAGE_CACHE_DIR:-$HOME/Library/Caches/claude-usage-swiftbar}"
@@ -31,6 +31,7 @@ case "$LANG_CODE" in
     T_STALE="Datos de las"; T_RATE_LIMITED="Demasiadas consultas: se reintentará en unos minutos"
     T_RESET_TITLE="Claude está disponible"; T_RESET_BODY="Tu límite de sesión de 5 horas se reinició."
     T_NOTIFY_ARMED="Te aviso cuando se reinicie la sesión"
+    T_WARN_TITLE="Claude: llevas el %s %% de tu sesión"; T_WARN_BODY="Se reinicia a las %s (en %s)."
     T_UPDATE="Nueva versión disponible"; T_UPDATE_INSTALL="Instalar actualización"; T_RELEASE_NOTES="Ver novedades" ;;
   *)
     T_SESSION="Session (5 h)"; T_WEEKLY="Weekly (all models)"; T_WEEKLY_MODEL="Weekly"
@@ -41,6 +42,7 @@ case "$LANG_CODE" in
     T_STALE="Data from"; T_RATE_LIMITED="Too many requests: will retry in a few minutes"
     T_RESET_TITLE="Claude is available again"; T_RESET_BODY="Your 5-hour session limit just reset."
     T_NOTIFY_ARMED="You'll be notified when the session resets"
+    T_WARN_TITLE="Claude: %s%% of your session used"; T_WARN_BODY="Resets at %s (in %s)."
     T_UPDATE="Update available"; T_UPDATE_INSTALL="Install update"; T_RELEASE_NOTES="What's new" ;;
 esac
 
@@ -96,7 +98,7 @@ else
   fi
 fi
 
-# Arm the reset notification when the session is at or above CLAUDE_USAGE_NOTIFY_AT (0 disables it).
+# At CLAUDE_USAGE_NOTIFY_AT (0 disables it): warn once per session window and arm the reset notification.
 NOTIFY_AT="${CLAUDE_USAGE_NOTIFY_AT:-90}"
 SESSION_STATE=$(jq -r '
   ((.limits // []) | map(select(.kind == "session")) | first // null) as $l
@@ -107,6 +109,16 @@ read -r SESSION_PCT SESSION_RESET <<<"$SESSION_STATE"
 if [ "$NOTIFY_AT" -gt 0 ] 2>/dev/null && [ -n "$SESSION_PCT" ] && [ "$SESSION_PCT" -ge "$NOTIFY_AT" ] \
    && [ "${SESSION_RESET:-0}" -gt "$(date +%s)" ]; then
   echo "$SESSION_RESET" > "$NOTIFY_FILE"
+  WARNED_FILE="$CACHE_DIR/warned-for"
+  WARNED=$(cat "$WARNED_FILE" 2>/dev/null || echo 0)
+  # resets_at can drift a few seconds between responses; same window if within 5 min.
+  if [ $(( SESSION_RESET - WARNED )) -gt 300 ] || [ $(( WARNED - SESSION_RESET )) -gt 300 ]; then
+    echo "$SESSION_RESET" > "$WARNED_FILE"
+    MINS=$(( (SESSION_RESET - $(date +%s)) / 60 ))
+    if [ "$MINS" -lt 60 ]; then IN="$MINS min"; else IN="$(( MINS / 60 )) h $(( MINS % 60 )) min"; fi
+    # shellcheck disable=SC2059
+    notify "$(printf "$T_WARN_TITLE" "$SESSION_PCT")" "$(printf "$T_WARN_BODY" "$(date -r "$SESSION_RESET" +%H:%M)" "$IN")"
+  fi
 fi
 [ -f "$NOTIFY_FILE" ] && ARMED="$T_NOTIFY_ARMED"
 
