@@ -1,6 +1,6 @@
 #!/bin/bash
 # <xbar.title>Claude Usage</xbar.title>
-# <xbar.version>v1.4.0</xbar.version>
+# <xbar.version>v1.4.1</xbar.version>
 # <xbar.author>Cristopher Huaroc</xbar.author>
 # <xbar.desc>Shows your Claude plan usage (5-hour session and weekly limits) in the menu bar, using your Claude Code login.</xbar.desc>
 # <xbar.dependencies>bash,jq,curl,Claude Code</xbar.dependencies>
@@ -10,7 +10,7 @@
 
 # Unofficial: reads the same endpoint Claude Code's /usage command uses. It may change without notice.
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
-VERSION="1.4.0"
+VERSION="1.4.1"
 REPO="Cristopheer96/claude-usage-swiftbar"
 USAGE_URL="https://claude.ai/settings/usage"
 CACHE_DIR="${CLAUDE_USAGE_CACHE_DIR:-$HOME/Library/Caches/claude-usage-swiftbar}"
@@ -89,7 +89,9 @@ else
     if [ "$CODE" = "200" ]; then
       printf '%s' "$BODY" > "$CACHE"; rm -f "$COOLDOWN"
     elif [ "$CODE" = "429" ]; then
-      echo $(( $(date +%s) + ${RETRY:-300} )) > "$COOLDOWN"
+      # retry-after is sometimes 0 while still limited; wait at least 5 min.
+      RETRY=${RETRY:-300}; [ "$RETRY" -lt 300 ] && RETRY=300
+      echo $(( $(date +%s) + RETRY )) > "$COOLDOWN"
     fi
   fi
   if [ "$CODE" != "200" ]; then

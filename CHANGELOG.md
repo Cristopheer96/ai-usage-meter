@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.4.1 - 2026-10-23
+
+- Wait at least 5 minutes after a 429, even when the API sends `retry-after: 0`.
+
 ## v1.4.0 - 2026-10-23
 
 - Notifications come from a small "AI Usage Meter" app with its own icon, instead of Script Editor. The installer builds it locally with `osacompile`; `osascript` remains the fallback.
