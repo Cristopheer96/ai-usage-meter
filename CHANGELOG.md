@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- The installer adds SwiftBar to your login items, so the menu bar items come back after a restart.
+
 ## v1.5.1 - 2026-10-23
 
 - The repo is now `Cristopheer96/ai-usage-meter` (it covers Claude and Codex). Old links redirect.

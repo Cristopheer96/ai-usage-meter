@@ -121,6 +121,20 @@ elif pgrep -xq SwiftBar; then
 else
   open -a SwiftBar
 fi
+
+# Open SwiftBar at login, or the items disappear after a restart
+SWIFTBAR_APP="/Applications/SwiftBar.app"
+[ -d "$SWIFTBAR_APP" ] || SWIFTBAR_APP="$HOME/Applications/SwiftBar.app"
+if [ -z "${AI_USAGE_NO_LAUNCH:-}" ] && [ -d "$SWIFTBAR_APP" ]; then
+  LOGIN_ITEMS=$(osascript -e 'tell application "System Events" to get the name of every login item' 2>/dev/null || true)
+  if [[ ", $LOGIN_ITEMS, " == *", SwiftBar, "* ]]; then
+    :
+  elif osascript -e "tell application \"System Events\" to make login item at end with properties {path:\"$SWIFTBAR_APP\", hidden:true}" >/dev/null 2>&1; then
+    info "SwiftBar will open at login"
+  else
+    warn "Could not add SwiftBar to login items. In SwiftBar → Preferences, turn on Launch at Login."
+  fi
+fi
 info "Done. Look for the Claude and Codex icons in your menu bar."
 warn "macOS may ask to allow notifications from \"AI Usage Meter\": choose Allow."
 warn "The first time, macOS may ask to allow SwiftBar to read the \"Claude Code-credentials\" Keychain item: choose Always Allow."
